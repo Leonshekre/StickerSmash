@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 import { Image, type ImageSource } from 'expo-image';
 
-//* review props
-//* props are immutable? i forget
+// PROPS: Immutable, like "const x" parameters, passed from parent
+// STATE: Mutable, local/private only, changes current "state" of app
 type Props = {
   imgSource: ImageSource;
   selectedImage?: string;
