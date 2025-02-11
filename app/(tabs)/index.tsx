@@ -1,10 +1,13 @@
 import { Text, View, StyleSheet } from "react-native";
 import { Link } from "expo-router";
 import { Image } from "expo-image";
-import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { captureRef } from 'react-native-view-shot';
 import { type ImageSource } from 'expo-image';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
+import * as ImagePicker from 'expo-image-picker';
+import * as MediaLibrary from 'expo-media-library';
 
 import EmojiPicker from "@/components/EmojiPicker";
 import Button from "@/components/Button";
@@ -26,13 +29,19 @@ export default function Index() {
 
   const [pickedEmoji, setPickedEmoji] = useState<ImageSource | undefined>(undefined);
 
+  const [permissionStatus, requestPermission] = MediaLibrary.usePermissions();
+  const imageRef = useRef<View>(null);
+
+  if (permissionStatus == null) {
+    requestPermission();
+  }
+
   const pickImageAsync = async() => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
       quality: 1,
     });
-
     if (!result.canceled) {
       // result.assets[0].fileName if ImagePickerSuccessResult
       setSelectedImage(result.assets[0].uri);
@@ -53,8 +62,23 @@ export default function Index() {
   const onModalClose = () => {
     setIsModalVisible(false);
   };
+
   const onSaveImageAsync = async () => {
-    
+    // captureRef awaits for onSaveImage press, then when its nonnull it saves it
+    // imageRef.current is set to the VIEW down there
+    // captureRef takes a SNAPSHOT of entire VIEW!
+    try {
+      const localUri = await captureRef(imageRef, {
+        height: 440,
+        quality: 1,
+      });
+      await MediaLibrary.saveToLibraryAsync(localUri);
+      if (localUri) {
+        alert('Saved!');
+      }
+    } catch(e) {
+      console.log(e);
+    }
   };
 
 
@@ -62,10 +86,12 @@ export default function Index() {
     <GestureHandlerRootView style={styles.appScreen}> 
 
       <View style={styles.imageContainer}>
-        {/* <Image source={PlaceholderImage} style={styles.image}/> */}
-        <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage}/>
-        {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
-        {pickedEmoji ? (<EmojiSticker imageSize={40} stickerSource={pickedEmoji} />) : (null)}
+        <View ref={imageRef} collapsable={false}>
+          {/* <Image source={PlaceholderImage} style={styles.image}/> */}
+          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage}/>
+          {/* {pickedEmoji && <EmojiSticker imageSize={40} stickerSource={pickedEmoji} />} */}
+          {pickedEmoji ? (<EmojiSticker imageSize={40} stickerSource={pickedEmoji} />) : (null)}
+        </View>
       </View>
 
       {/* When showAppOptions=true, render diff view */}
