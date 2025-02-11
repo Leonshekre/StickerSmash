@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { type ImageSource } from 'expo-image';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import EmojiPicker from "@/components/EmojiPicker";
 import Button from "@/components/Button";
@@ -12,6 +13,7 @@ import CircleButton from "@/components/CircleButton";
 import IconButton from "@/components/IconButton";
 import EmojiList from "@/components/EmojiList";
 import EmojiSticker from "@/components/EmojiSticker";
+
 
 // * require()
 const PlaceholderImage = require("@/assets/images/background-image.png");
@@ -57,7 +59,7 @@ export default function Index() {
 
 
   return (
-    <View style={styles.appScreen}> 
+    <GestureHandlerRootView style={styles.appScreen}> 
 
       <View style={styles.imageContainer}>
         {/* <Image source={PlaceholderImage} style={styles.image}/> */}
@@ -93,7 +95,7 @@ export default function Index() {
         Go to About screen
       </Link> */}
 
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
